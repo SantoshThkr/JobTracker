@@ -43,6 +43,24 @@ export const WORK_MODE_LABELS: Record<WorkMode, string> = {
   onsite: "On-site",
 };
 
+// Form field names, shared by the form (client) and its validation (server).
+export const APPLICATION_FIELDS = [
+  "company",
+  "title",
+  "url",
+  "location",
+  "workMode",
+  "salary",
+  "status",
+  "appliedAt",
+  "nextFollowUpAt",
+  "notes",
+] as const;
+
+export type ApplicationField = (typeof APPLICATION_FIELDS)[number];
+
+export type FieldErrors = Partial<Record<ApplicationField, string>>;
+
 // An application sitting in "applied" this long without a status change is
 // flagged on the dashboard as needing a follow-up or a decision.
 export const STALE_AFTER_DAYS = 14;
