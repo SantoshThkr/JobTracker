@@ -1,5 +1,13 @@
 import * as z from "zod";
-import { STATUSES, WORK_MODES, type Status, type WorkMode } from "./constants";
+import {
+  APPLICATION_FIELDS,
+  STATUSES,
+  WORK_MODES,
+  type ApplicationField,
+  type FieldErrors,
+  type Status,
+  type WorkMode,
+} from "./constants";
 import { parseHttpUrl } from "./url";
 
 const DATE_ONLY = /^\d{4}-\d{2}-\d{2}$/;
@@ -59,10 +67,10 @@ const applicationFields = {
       return url.href;
     }),
   location: optionalText("Location", 120),
-  workMode: z
-    .union([z.enum(WORK_MODES, { error: "Choose a valid work arrangement." }), z.literal("")])
-    .optional()
-    .transform((value) => (value ? value : undefined)),
+  workMode: z.preprocess(
+    (value) => (value === "" ? undefined : value),
+    z.enum(WORK_MODES, { error: "Choose a valid work arrangement." }).optional()
+  ),
   salary: optionalText("Salary", 100),
   appliedAt: optionalDate("Applied date"),
   nextFollowUpAt: optionalDate("Follow-up date"),
@@ -99,23 +107,6 @@ export type ApplicationInput = {
 };
 
 export type NewApplicationInput = ApplicationInput & { status: Status };
-
-export const APPLICATION_FIELDS = [
-  "company",
-  "title",
-  "url",
-  "location",
-  "workMode",
-  "salary",
-  "appliedAt",
-  "nextFollowUpAt",
-  "notes",
-  "status",
-] as const;
-
-export type ApplicationField = (typeof APPLICATION_FIELDS)[number];
-
-export type FieldErrors = Partial<Record<ApplicationField, string>>;
 
 /** Reads the known application fields from a form submission as strings. */
 export function readApplicationForm(formData: FormData): Partial<Record<ApplicationField, string>> {
